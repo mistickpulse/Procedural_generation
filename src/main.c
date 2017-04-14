@@ -5,7 +5,7 @@
 ** Login   <le-mau_f@epitech.net>
 **
 ** Started on  Wed Apr 12 22:19:16 2017 fabian.le-maux@epitech.eu
-** Last update Fri Apr 14 11:32:18 2017 fabian.le-maux@epitech.eu
+** Last update Fri Apr 14 12:05:11 2017 fabian.le-maux@epitech.eu
 */
 
 #include <sys/types.h>
@@ -40,7 +40,6 @@ static char		**init_random(t_gen *core)
 {
   double	wall_qte = ((core->smapx * core->smapy) * core->fill) / 100; // calcul du nombre de mur a placer dans la map
 
-  srand(time(NULL));
   while (wall_qte > 0)
   {
     core->map[rand() % core->smapy][rand() % core->smapx] = WALL;
@@ -58,36 +57,30 @@ static void		dump(char **map)
 
 static bool		rule1(t_gen *core, int y, int x, int nbr) // placing wall
 {
-  int		nbh = 0;
+  int			nbh = 0; // neighbors
 
   for(int i = -1; i <= 1; i++)
     for(int j = -1; j <= 1; j++)
       if (core->map[y + i][x + j] == WALL)
 	nbh += 1;
-
-  if (nbh >= nbr)
-    return (true);
-  return (false);
+  return ((nbh >= nbr));
 }
 
-static int		rule2(t_gen *core, int y, int x, int nbr) // smooth border
+static bool		rule2(t_gen *core, int y, int x, int nbr) // smooth border
 {
-  int		nbh = 0;
+  int			nbh = 0; // neighbors
 
 
-  for(int i = y-2; i <= y+2; i++)
-    for(int j = x-2; j <= x+2; j++)
+  for(int i = y - 2; i <= y + 2; i++)
+    for(int j = x - 2; j <= x + 2; j++)
     {
-      if ((abs(i-y) == 2 && abs(j-x) == 2) || // pour ne pas se checker
+      if ((abs(i - y) == 2 && abs(j - x) == 2) || // do not check yourself
 	  ((i < 0 || j < 0 || i >= core->smapy || j >= core->smapx)))
 	continue;
       if(core->map[i][j] == WALL)
 	nbh++;
     }
-
-  if (nbh <= nbr)
-    return (true);
-  return (false);
+  return ((nbh <= nbr)); // condition return everytime a bool (so return condition)
 }
 
 static char		**apply_rule(t_gen *core)
@@ -110,7 +103,7 @@ static char		**apply_rule(t_gen *core)
 
 static void		set_initwall(t_gen *core)
 {
-  int x = 0;
+  int			x = 0;
   memset(core->map[0], WALL, core->smapx);
   memset(core->map[core->smapy - 1], WALL, core->smapx);
   while (core->map[x])
@@ -123,7 +116,7 @@ static void		set_initwall(t_gen *core)
 
 static char		**initm(t_gen *core)
 {
-  char		**ret;
+  char			**ret;
 
   ret = malloc(sizeof(char *) * (core->smapy + 3));
   for (int i = 0; i < core->smapy; i++)
@@ -163,7 +156,9 @@ int		main(int ac, char **av)
     fprintf(stderr, "%s\n", USAGE);
     return (EXIT_FAILURE);
   }
+  srand(time(NULL));
   core.map = NULL;
+  core.tmp = NULL;
   init_args(av, &core);
 
   core.map = initm(&core);//  allocated map
